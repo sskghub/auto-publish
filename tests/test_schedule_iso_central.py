@@ -6,7 +6,7 @@ RFC3339 timestamp anchored to America/Chicago. Tests both CST and CDT, plus
 
 import pytest
 
-from autopublish_app import _schedule_iso_central
+from lib.captions import _schedule_iso_central
 
 
 def test_cdt_summer_offset():

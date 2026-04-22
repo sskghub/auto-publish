@@ -5,7 +5,7 @@ from a Drive filename like 'Topic EN #now.mp4' or 'Topic TE 2026-04-30 9:00 AM'.
 
 import pytest
 
-from autopublish_app import _parse_caption
+from lib.captions import _parse_caption
 
 
 def test_publish_now_english():

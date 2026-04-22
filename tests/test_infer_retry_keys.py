@@ -5,7 +5,7 @@ Tests for `_infer_retry_keys_natural` — parses Telegram retry commands like
 
 import pytest
 
-from autopublish_app import _infer_retry_keys_natural
+from lib.retry_keys import _infer_retry_keys_natural
 
 
 def test_telugu_instagram():
