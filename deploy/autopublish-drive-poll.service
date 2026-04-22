@@ -1,0 +1,15 @@
+[Unit]
+Description=Auto Publish: poll Google Drive and POST new videos to Modal
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/opt/autopublish-drive/.env
+WorkingDirectory=/opt/autopublish-drive
+ExecStart=/opt/autopublish-drive/venv/bin/python /opt/autopublish-drive/drive_poll_autopublish.py
+StandardOutput=journal
+StandardError=journal
+
+# Poller exits non-zero on Modal/Drive failure so timer / monitoring can surface it.
+SuccessExitStatus=0

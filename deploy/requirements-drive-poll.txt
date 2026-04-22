@@ -1,0 +1,5 @@
+# Drive poller only (Modal app uses Modal image deps separately).
+google-api-python-client>=2.100.0
+google-auth>=2.23.0
+httpx>=0.27.0
+python-dotenv>=1.0.0

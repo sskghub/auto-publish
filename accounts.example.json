@@ -1,0 +1,17 @@
+{
+  "_comment_root": "Schema for ACCOUNTS_JSON env var (Modal secret 'accounts-json'). Single-line stringified version of this object. Used by autopublish_app.py to map locale tag (te/en) to Blotato account IDs per platform. Get account IDs from https://my.blotato.com.",
+
+  "te": {
+    "lang": "telugu",
+    "ig": {"account_id": "YOUR_IG_TE_ACCOUNT_ID", "name": "@your_te_handle"},
+    "yt": {"account_id": "YOUR_YT_TE_ACCOUNT_ID", "name": "YourTeChannel"},
+    "fb": {"account_id": "YOUR_FB_ACCOUNT_ID", "page_id": "YOUR_FB_PAGE_ID_TE", "name": "@your_te_handle FB"}
+  },
+  "en": {
+    "lang": "english",
+    "ig": {"account_id": "YOUR_IG_EN_ACCOUNT_ID", "name": "@your_en_handle"},
+    "yt": {"account_id": "YOUR_YT_EN_ACCOUNT_ID", "name": "YourEnChannel"},
+    "fb": {"account_id": "YOUR_FB_ACCOUNT_ID", "page_id": "YOUR_FB_PAGE_ID_EN", "name": "@your_en_handle FB"},
+    "x": {"account_id": "YOUR_X_ACCOUNT_ID", "name": "X @your_handle"}
+  }
+}

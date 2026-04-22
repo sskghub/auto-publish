@@ -1,0 +1,14 @@
+{
+  "_comment": "Copy this file to platforms.json and fill in real Blotato account IDs from https://my.blotato.com. The keys (linkedin, ig-te, etc.) are stable identifiers used by post_video.py CLI. Add or remove platforms freely. The post_video.py CLI exposes whatever keys you put here.",
+
+  "linkedin":    {"account_id": "YOUR_LINKEDIN_ACCOUNT_ID",  "platform": "linkedin",   "target": "linkedin",   "label": "LinkedIn"},
+  "ig-te":       {"account_id": "YOUR_IG_TE_ACCOUNT_ID",     "platform": "instagram",  "target": "instagram",  "label": "IG (locale TE)"},
+  "ig-en":       {"account_id": "YOUR_IG_EN_ACCOUNT_ID",     "platform": "instagram",  "target": "instagram",  "label": "IG (locale EN)"},
+  "ig-trial-te": {"account_id": "YOUR_IG_TE_ACCOUNT_ID",     "platform": "instagram",  "target": "instagram",  "label": "IG Trial Reel (locale TE)", "target_extra": {"mediaType": "reel", "trial": {"graduationStrategy": "SS_PERFORMANCE"}}},
+  "ig-trial-en": {"account_id": "YOUR_IG_EN_ACCOUNT_ID",     "platform": "instagram",  "target": "instagram",  "label": "IG Trial Reel (locale EN)", "target_extra": {"mediaType": "reel", "trial": {"graduationStrategy": "SS_PERFORMANCE"}}},
+  "yt-te":       {"account_id": "YOUR_YT_TE_ACCOUNT_ID",     "platform": "youtube",    "target": "youtube",    "label": "YT Short (locale TE)"},
+  "yt-en":       {"account_id": "YOUR_YT_EN_ACCOUNT_ID",     "platform": "youtube",    "target": "youtube",    "label": "YT Short (locale EN)"},
+  "fb-te":       {"account_id": "YOUR_FB_ACCOUNT_ID",        "platform": "facebook",   "target": "facebook",   "label": "FB (locale TE)", "page_id": "YOUR_FB_PAGE_ID_TE"},
+  "fb-en":       {"account_id": "YOUR_FB_ACCOUNT_ID",        "platform": "facebook",   "target": "facebook",   "label": "FB (locale EN)", "page_id": "YOUR_FB_PAGE_ID_EN"},
+  "x":           {"account_id": "YOUR_X_ACCOUNT_ID",         "platform": "x",          "target": "x",          "label": "X / Twitter"}
+}

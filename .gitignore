@@ -1,0 +1,111 @@
+# ============================================================
+# Canonical .gitignore for SSK public repos
+# Copy this to the root of every new repo before first commit
+# ============================================================
+
+# ---------- Secrets & credentials ----------
+.env
+.env.*
+!.env.example
+*.token
+*.pem
+*.key
+secrets/
+credentials/
+service-account*.json
+google-credentials*.json
+*-credentials.json
+*-service-account.json
+.google_token.pickle
+*.modal.toml
+.modal.toml
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# mypy / ruff
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+
+# ---------- Node / JS ----------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp.*
+.next/
+.nuxt/
+.turbo/
+.vercel/
+dist/
+build/
+
+# ---------- IDE / editors ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ---------- OS ----------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ---------- Logs & local data ----------
+*.log
+logs/
+data/
+outputs/
+tmp/
+temp/
+*.sqlite
+*.sqlite3
+*.db
+
+# ---------- Project-specific (auto-publish) ----------
+accounts.json
+platforms.json
+deploy/.env
