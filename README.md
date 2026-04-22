@@ -6,6 +6,7 @@ One serverless endpoint. One systemd timer. Zero copy-paste between platforms.
 
 > **Status:** running in production for [@ssktechy](https://instagram.com/ssktechy) (180K+ Telugu) and [@ssktechy.ai](https://instagram.com/ssktechy.ai) (English) — handling ~30 videos/week across 9 platform accounts.
 
+[![ci](https://github.com/sskghub/auto-publish/actions/workflows/ci.yml/badge.svg)](https://github.com/sskghub/auto-publish/actions/workflows/ci.yml)
 [![Built with Modal](https://img.shields.io/badge/built%20with-Modal-7B61FF)](https://modal.com)
 [![Posting via Blotato](https://img.shields.io/badge/posting-Blotato-22C55E)](https://blotato.com)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -257,7 +258,23 @@ Reads `BLOTATO_API_KEY` from a local `.env`; uses `platforms.json`.
 | `accounts.example.json` | Schema for the `accounts-json` Modal secret |
 | `platforms.example.json` | Schema for `platforms.json` (used by `post_video.py`) |
 | `deploy/` | VPS deploy guide + `systemd` units + poller `requirements.txt` |
+| `tests/` | pytest suite for the pure helper functions (46 tests) |
+| `.github/workflows/ci.yml` | GitHub Actions: pytest on Python 3.11 + 3.12 |
 | `CLAUDE.md` | Internal architecture notes (deeper than this README) |
+
+## Tests
+
+The pure helper functions (`_parse_caption`, `_infer_retry_keys_natural`, `_schedule_iso_central`) have pytest coverage. Tests run automatically on every push to `main` via GitHub Actions (Python 3.11 + 3.12 matrix).
+
+Run locally:
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install pytest httpx fastapi tzdata
+pytest tests/ -v
+```
+
+`tests/conftest.py` stubs the `modal` module at import time so tests don't need a Modal account or network access.
 
 ## Repo hygiene
 
