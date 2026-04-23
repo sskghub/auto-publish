@@ -32,6 +32,12 @@ telegram_last_job = modal.Dict.from_name(
 )
 # Cooldown for same chat + job + platform set (Telegram double-tap / repeated /retry).
 retry_dedupe = modal.Dict.from_name("autopublish-retry-dedupe", create_if_missing=True)
+# Dedupe fresh runs by (caption + video_url) so a poller re-fire on a transient
+# Modal redirect / 5xx does not double-publish. Window: DEDUPE_WINDOW_SEC.
+inflight_dedupe = modal.Dict.from_name(
+    "autopublish-inflight-dedupe", create_if_missing=True
+)
+DEDUPE_WINDOW_SEC = 30 * 60
 
 # ---------------------------------------------------------------------------
 # Account map
@@ -885,6 +891,42 @@ def autopublish(data: dict, authorization: str = Header(None)) -> dict:
         tg(f"FAILED: {err}\nCaption: {caption[:200]}")
         return {"status": "error", "error": err}
 
+    # Dedupe: if same (caption + video_url) was POSTed recently and the prior
+    # call is in_progress or completed, return the prior job_id instead of
+    # running the full pipeline again. Errored prior calls are NOT deduped so
+    # legitimate retries still go through.
+    import hashlib
+    import time
+
+    dedupe_key = hashlib.sha1(f"{caption}|{video_url}".encode("utf-8")).hexdigest()[:16]
+    now_ts = time.time()
+    prior = inflight_dedupe.get(dedupe_key)
+    if isinstance(prior, dict):
+        age = now_ts - float(prior.get("ts", 0))
+        prior_status = prior.get("status", "in_progress")
+        if prior_status != "error" and age < DEDUPE_WINDOW_SEC:
+            prior_job = prior.get("job_id", "")
+            tg(
+                f"AUTOPUBLISH-MODAL — duplicate request suppressed ({int(age)}s old, prior={prior_status}).\n"
+                f"Same caption + video_url already accepted. Returning prior job: {prior_job}\n"
+                f"Caption: {caption[:200]}"
+            )
+            return {
+                "status": "completed",
+                "job_id": prior_job,
+                "deduped": True,
+                "deduped_age_sec": int(age),
+            }
+
+    def _mark_dedupe(status: str) -> None:
+        inflight_dedupe[dedupe_key] = {
+            "job_id": job_id,
+            "ts": now_ts,
+            "status": status,
+        }
+
+    _mark_dedupe("in_progress")
+
     mode_label = (
         "PUBLISH NOW"
         if publish_mode == "publish"
@@ -925,6 +967,7 @@ def autopublish(data: dict, authorization: str = Header(None)) -> dict:
                 if stream.status_code != 200:
                     error = f"Video download failed: HTTP {stream.status_code}"
                     tg(f"FAILED at step 1/5: {error}\nURL: {video_url}")
+                    _mark_dedupe("error")
                     return {
                         "status": "error",
                         "step": 1,
@@ -935,6 +978,7 @@ def autopublish(data: dict, authorization: str = Header(None)) -> dict:
                 if "text/html" in ct:
                     error = "Got HTML instead of video. If Google Drive, the file may require virus scan confirmation or is not shared publicly."
                     tg(f"FAILED at step 1/5: {error}\nURL: {video_url}")
+                    _mark_dedupe("error")
                     return {
                         "status": "error",
                         "step": 1,
@@ -947,6 +991,7 @@ def autopublish(data: dict, authorization: str = Header(None)) -> dict:
     except Exception as e:
         error = f"Video download error: {type(e).__name__}: {str(e)[:300]}"
         tg(f"FAILED at step 1/5: {error}\nURL: {video_url}")
+        _mark_dedupe("error")
         return {"status": "error", "step": 1, "error": error, "job_id": job_id}
 
     video_size_mb = round(len(video_bytes) / (1024 * 1024), 1)
@@ -964,6 +1009,7 @@ def autopublish(data: dict, authorization: str = Header(None)) -> dict:
             tg(
                 f"FAILED at step 1/5: {error}\nVideo was downloaded but could not be uploaded to Blotato.\nFix: check Blotato status at my.blotato.com"
             )
+            _mark_dedupe("error")
             return {"status": "error", "step": 1, "error": error, "job_id": job_id}
 
     # Cache after step 1
@@ -999,6 +1045,7 @@ def autopublish(data: dict, authorization: str = Header(None)) -> dict:
         tg(
             f"FAILED at step 2/5: {error}\nJob: {job_id}\nVideo is uploaded to Blotato: {public_url}\nNothing was posted. Fix: check if video has audio, or retry."
         )
+        _mark_dedupe("error")
         return {
             "status": "error",
             "step": 2,
@@ -1039,6 +1086,7 @@ def autopublish(data: dict, authorization: str = Header(None)) -> dict:
         tg(
             f'FAILED at step 3/5: {error}\nJob: {job_id}\nTranscript: "{transcript[:150]}..."\nVideo URL: {public_url}\nFix: retry or provide captions manually.'
         )
+        _mark_dedupe("error")
         return {
             "status": "error",
             "step": 3,
@@ -1091,6 +1139,7 @@ def autopublish(data: dict, authorization: str = Header(None)) -> dict:
             lines.append(f"X: {captions.get('x_post', '')[:200]}")
         tg("\n".join(lines))
 
+        _mark_dedupe("completed")
         return {
             "status": "dry_run",
             "job_id": job_id,
@@ -1137,6 +1186,7 @@ def autopublish(data: dict, authorization: str = Header(None)) -> dict:
         telegram_chat_id=chat_id,
     )
 
+    _mark_dedupe("completed")
     return {
         "status": "completed",
         "job_id": job_id,

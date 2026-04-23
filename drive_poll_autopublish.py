@@ -159,11 +159,14 @@ def build_modal_payload(file_id: str, filename: str) -> dict[str, str]:
 
 
 def call_modal(url: str, token: str, body: dict[str, str]) -> httpx.Response:
+    # follow_redirects=True so a Modal edge 3xx (e.g. cold-start handover) does
+    # not get treated as failure and re-fired — that path was the dup-publish bug.
     return httpx.post(
         url.rstrip("/"),
         json=body,
         headers={"Authorization": f"Bearer {token}"},
         timeout=httpx.Timeout(MODAL_TIMEOUT_SEC, connect=30.0),
+        follow_redirects=True,
     )
 
 
@@ -221,7 +224,7 @@ def run_once() -> int:
             )
             return 1
 
-        if r.status_code not in (200, 201):
+        if not 200 <= r.status_code < 300:
             err = f"HTTP {r.status_code} {r.text[:500]}"
             log.error("Modal bad status for %s: %s", name[:80], err)
             send_telegram(
