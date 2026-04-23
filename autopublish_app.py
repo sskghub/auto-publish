@@ -827,6 +827,11 @@ def autopublish(data: dict, authorization: str = Header(None)) -> dict:
             "AUTOPUBLISH-MODAL — TELEGRAM_BOT_TOKEN missing from secret "
             "'telegram-autopublish-bot'. Pipeline will run silently.\n"
         )
+    if not chat_id:
+        sys.stderr.write(
+            "AUTOPUBLISH-MODAL — TELEGRAM_CHAT_ID missing from secret "
+            "'telegram-autopublish-bot'. Pipeline will run silently.\n"
+        )
 
     def tg(msg, reply_markup=None):
         if bot_token and chat_id:
