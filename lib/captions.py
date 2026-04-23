@@ -127,10 +127,24 @@ def _parse_caption(caption: str) -> dict:
             scheduled_time = None
             break
 
+    has_notrial = (
+        ("#notrial" in lower) or ("no trail" in lower) or ("no trial" in lower)
+    )
+    has_trialonly = ("#trialonly" in lower) or ("trial only" in lower)
+    if has_trialonly and has_notrial:
+        publish_scope = "conflict"
+    elif has_trialonly:
+        publish_scope = "trialonly"
+    elif has_notrial:
+        publish_scope = "notrial"
+    else:
+        publish_scope = "full"
+
     lang_map = {"te": "telugu", "en": "english"}
     return {
         "tag": tag,
         "language": lang_map.get(tag) if tag else None,
         "scheduled_time": scheduled_time,
         "publish_mode": publish_mode,
+        "publish_scope": publish_scope,
     }
