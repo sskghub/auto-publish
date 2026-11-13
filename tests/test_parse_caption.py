@@ -46,6 +46,22 @@ def test_natural_date_schedule_english():
     assert out["scheduled_time"].startswith("2026-04-30T09:00:00")
 
 
+def test_compact_time_schedule_notrial():
+    out = _parse_caption("GPT image TE april 25 2026 930pm #notrial.mp4")
+    assert out["tag"] == "te"
+    assert out["publish_mode"] == "scheduled"
+    assert out["publish_scope"] == "notrial"
+    assert out["scheduled_time"].startswith("2026-04-25T21:30:00")
+
+
+def test_compact_time_schedule_trialonly():
+    out = _parse_caption("AI tool EN April 26 2026 945AM #trialonly.mp4")
+    assert out["tag"] == "en"
+    assert out["publish_mode"] == "scheduled"
+    assert out["publish_scope"] == "trialonly"
+    assert out["scheduled_time"].startswith("2026-04-26T09:45:00")
+
+
 def test_now_overrides_schedule():
     """If both a date and #now are present, #now wins (publish immediately)."""
     out = _parse_caption("Topic EN 2026-04-30 09:00 #now.mp4")

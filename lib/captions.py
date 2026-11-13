@@ -52,9 +52,14 @@ def _convert_12_to_24(t: str) -> str:
     t = t.strip()
     ampm_match = re.search(r"(AM|PM)", t, re.IGNORECASE)
     numeric = re.sub(r"(AM|PM)", "", t, flags=re.IGNORECASE).strip()
+    if ":" not in numeric and numeric.isdigit() and len(numeric) in (3, 4):
+        numeric = f"{numeric[:-2]}:{numeric[-2:]}"
     parts = numeric.split(":")
     h = int(parts[0])
     m = parts[1] if len(parts) > 1 else "00"
+    minute = int(m)
+    if h > 23 or minute > 59:
+        raise ValueError(f"Invalid time: {t}")
     if ampm_match:
         is_pm = ampm_match.group(1).upper() == "PM"
         if is_pm and h < 12:
@@ -95,10 +100,12 @@ def _parse_caption(caption: str) -> dict:
     publish_mode = "next_slot"
 
     iso_match = re.search(
-        r"(\d{4}-\d{2}-\d{2})\s+(\d{1,2}:\d{2}\s*(?:AM|PM)?)", caption, re.IGNORECASE
+        r"(\d{4}-\d{2}-\d{2})\s+((?:\d{1,2}:\d{2}|\d{3,4}|\d{1,2})\s*(?:AM|PM)?)",
+        caption,
+        re.IGNORECASE,
     )
     natural_match = re.search(
-        r"(?:on|for|at)?\s*(?:(\w+)\s+(\d{1,2})(?:st|nd|rd|th)?\s*,?\s*(\d{4}))\s*(?:at\s+)?(\d{1,2}(?::\d{2})?\s*(?:AM|PM)?)?",
+        r"(?:on|for|at)?\s*(?:(\w+)\s+(\d{1,2})(?:st|nd|rd|th)?\s*,?\s*(\d{4}))\s*(?:at\s+)?((?:\d{1,2}:\d{2}|\d{3,4}|\d{1,2})\s*(?:AM|PM)?)?",
         caption,
         re.IGNORECASE,
     )
